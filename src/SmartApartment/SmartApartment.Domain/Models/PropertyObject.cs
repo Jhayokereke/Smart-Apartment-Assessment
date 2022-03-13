@@ -1,4 +1,4 @@
-﻿namespace SmartApartment.Domain
+﻿namespace SmartApartment.Domain.Models
 {
     public class PropertyObject
     {

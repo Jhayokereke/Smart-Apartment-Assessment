@@ -1,12 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MediatR;
 
 namespace SmartApartment.Application.Dtos
 {
-    public class SearchRequest
+    public class SearchRequest : IRequest<SearchResponse>
     {
-        [Required]
         public string SearchPhrase { get; set; }
         public string[] Markets { get; set; }
         public int Limit { get; set; }
+        public int Pagenumber { get; set; }
     }
 }

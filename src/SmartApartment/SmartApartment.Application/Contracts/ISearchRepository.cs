@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace SmartApartment.Application.Contracts
 {
-    public interface ISearchRepository<T> where T : class
+    public interface ISearchRepository
     {
-        Task<bool> BulkAddAsync(string index, IEnumerable<T> data);
-        Task<SearchResult> Search(SearchRequest request);
+        Task<SearchResponse> Search(SearchRequest request);
     }
 }

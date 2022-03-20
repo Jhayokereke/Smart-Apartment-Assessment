@@ -12,7 +12,7 @@ namespace SmartApartment.Infrastructure.Persistence
 {
     public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
     {
-        private readonly IElasticClient _client;
+        protected readonly IElasticClient _client;
 
         protected string Index { get; }
         public BaseRepository(IElasticClient client)
@@ -23,7 +23,7 @@ namespace SmartApartment.Infrastructure.Persistence
         public async Task<bool> Add(string index, T data)
         {
             if (!await IndexExists(index))
-                throw new ApiException("Index does not exist");
+                await CreateIndex(index);
 
             var response = await _client.IndexAsync(data, x => x.Index(index));
             return response.IsValid;
@@ -32,7 +32,7 @@ namespace SmartApartment.Infrastructure.Persistence
         public async Task<bool> BulkAddAsync(string index, ICollection<T> data)
         {
             if (!await IndexExists(index))
-                throw new ApiException("Index does not exist");
+                await CreateIndex(index);
 
             var response = await _client.IndexManyAsync(data, index);
             return response.IsValid;
@@ -44,6 +44,37 @@ namespace SmartApartment.Infrastructure.Persistence
         {
             var response = await _client.Indices.ExistsAsync(index);
             return response.Exists;
+        }
+
+        protected IAnalysis Analyzer(AnalysisDescriptor descriptor)
+        {
+            return descriptor
+                 .Analyzers(an => an
+                         .Custom(Constants.AutocompleteAnalyzer, a => a
+                                     .Tokenizer("autocomplete")
+                                     .Filters("lowercase", "stop", "eng_stopwords", "trim")
+                                 )
+                         .Custom(Constants.KeywordAnalyzer, a => a
+                                     .Tokenizer("keyword")
+                                     .Filters("lowercase", "eng_stopwords", "trim")
+                                 )
+                         .Custom(Constants.SearchAnalyzer, a => a
+                                     .Tokenizer("lowercase")
+                                     .Filters("eng_stopwords", "trim")
+                                 )
+                        )
+                 .Tokenizers(t => t
+                         .EdgeNGram("autocomplete", g => g
+                                     .MinGram(2)
+                                     .MaxGram(15)
+                                     .TokenChars(TokenChar.Letter)
+                                )
+                        )
+                 .TokenFilters(f => f
+                         .Stop("eng_stopwords", s => s
+                                    .StopWords("_english_")
+                                )
+                        );
         }
     }
 }

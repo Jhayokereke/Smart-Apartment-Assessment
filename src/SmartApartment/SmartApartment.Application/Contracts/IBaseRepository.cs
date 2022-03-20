@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace SmartApartment.Application.Contracts
 {
-    public interface IBaseRepository<T> where T : class
+    public interface IBaseRepository
     {
-        Task<bool> BulkAddAsync(string index, ICollection<T> data);
-        Task<bool> Add(string index, T data);
+        Task<bool> BulkAddAsync<T>(string index, ICollection<T> data) where T : class;
+        Task<bool> Add<T>(string index, T data) where T : class;
         Task<bool> IndexExists(string index);
         Task<bool> CreateIndex(string index);
     }

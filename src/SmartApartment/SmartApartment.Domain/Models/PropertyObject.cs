@@ -1,4 +1,6 @@
-﻿namespace SmartApartment.Domain.Models
+﻿using System.Text.Json.Serialization;
+
+namespace SmartApartment.Domain.Models
 {
     public class PropertyObject
     {

@@ -21,9 +21,9 @@ namespace SmartApartment.Infrastructure.Persistence
         {
             int offset = (request.Pagenumber - 1) * request.Limit;
             var result = await _client.SearchAsync<object>(s => s
-            .Index(Constants.Alias)
+            .Index(Constants.SmartApartment)
             .Size(request.Limit)
-            .Skip((request.Pagenumber - 1) * request.Limit)
+            .Skip(offset)
             .Query(q => 
                 q
                    .Bool(q => q
@@ -33,6 +33,8 @@ namespace SmartApartment.Infrastructure.Persistence
                                    .Field(Infer.Field<PropertyObject>(p => p.Property.Name, 1.8))
                                    .Field(Infer.Field<PropertyObject>(p => p.Property.FormerName, 1.7))
                                )
+                               .Fuzziness(Fuzziness.Auto)
+                               .Operator(Operator.Or)
                                .Query(request.SearchPhrase)
                            )
                        )
@@ -51,6 +53,8 @@ namespace SmartApartment.Infrastructure.Persistence
                                .Fields(f => f
                                    .Field(Infer.Field<ManagementObject>(m => m.Management.Name, 1.8))
                                )
+                               .Fuzziness(Fuzziness.Auto)
+                               .Operator(Operator.Or)
                                .Query(request.SearchPhrase)
                            )
                        )

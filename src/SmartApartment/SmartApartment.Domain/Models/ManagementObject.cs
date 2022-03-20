@@ -1,16 +1,16 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace SmartApartment.Domain.Models
 {
     public class ManagementObject
     {
-        [JsonProperty("mgmt")]
+        [JsonPropertyName("mgmt")]
         public Management Management { get; set; }
     }
 
     public class Management
     {
-        [JsonProperty("mgmtID")]
+        [JsonPropertyName("mgmtID")]
         public int ManagementID { get; set; }
         public string Name { get; set; }
         public string Market { get; set; }

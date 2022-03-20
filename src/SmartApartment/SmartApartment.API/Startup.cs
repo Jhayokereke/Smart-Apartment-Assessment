@@ -1,23 +1,15 @@
 using Elasticsearch.Net;
-using Elasticsearch.Net.Aws;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Nest;
+using SmartApartment.API.Middlewares;
 using SmartApartment.Application;
 using SmartApartment.Application.Contracts;
-using SmartApartment.Domain.Models;
 using SmartApartment.Infrastructure.Persistence;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SmartApartment.API
 {
@@ -35,16 +27,21 @@ namespace SmartApartment.API
         {
             services.AddApplication();
             services.AddScoped<ISearchRepository, SearchRepository>();
-            services.AddScoped<IPropertyRepository, PropertyRepository>();
-            services.AddScoped<IManagementRepository, ManagementRepository>();
+            services.AddScoped<IBaseRepository, BaseRepository>();
             services.AddSingleton<IElasticClient>(s =>
             {
-                var httpConnection = new AwsHttpConnection(Configuration["AWS:OpenSearch.Region"]);
+                //var httpConnection = new AwsHttpConnection(Configuration["AWS:OpenSearch.Region"]);
 
-                var pool = new SingleNodeConnectionPool(new Uri(Configuration["AWS:OpenSearch.URL"]));
-                var config = new ConnectionSettings(pool, httpConnection).EnableDebugMode();
+                //var pool = new SingleNodeConnectionPool(new Uri(Configuration["AWS:OpenSearch.URL"]));
+                //var config = new ConnectionSettings(pool, httpConnection).EnableDebugMode();
 
-                return new ElasticClient(config);
+                ////var config = new ConnectionSettings(new Uri("http://localhost:9200"));
+
+                //return new ElasticClient(config);
+
+                var settings = new ConnectionSettings(Configuration["Elastic:CloudID"], new BasicAuthenticationCredentials(Configuration["Elastic:Username"], Configuration["Elastic:Password"]))
+                .EnableDebugMode();
+                return new ElasticClient(settings);
             });
 
 
@@ -56,7 +53,7 @@ namespace SmartApartment.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IManagementRepository manRepo, IPropertyRepository propRepo)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IBaseRepository baseRepo)
         {
             if (env.IsDevelopment())
             {
@@ -65,13 +62,14 @@ namespace SmartApartment.API
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SmartApartment.API v1"));
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
+            app.UseMiddleware<ExceptionHandler>();
 
             app.UseRouting();
 
             app.UseAuthorization();
 
-            Seed.SeedData(manRepo, propRepo, Configuration);
+            Seed.SeedData(baseRepo, Configuration);
 
             app.UseEndpoints(endpoints =>
             {

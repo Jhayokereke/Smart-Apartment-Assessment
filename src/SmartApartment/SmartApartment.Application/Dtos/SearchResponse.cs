@@ -2,11 +2,13 @@
 
 namespace SmartApartment.Application.Dtos
 {
-    public class SearchResponse : BaseResponse<SearchData>
+    public class SearchResponse : ApiResponse
     {
         public SearchResponse(string message = "", bool success = false) : base(message, success)
         {
         }
+
+        public SearchData Data { get; set; }
     }
 
     public class SearchData

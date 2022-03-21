@@ -30,8 +30,8 @@ namespace SmartApartment.Infrastructure.Persistence
                        .Must(q => q
                            .MultiMatch(m => m
                                .Fields(f => f
-                                   .Field(Infer.Field<PropertyObject>(p => p.Property.Name, 1.8))
-                                   .Field(Infer.Field<PropertyObject>(p => p.Property.FormerName, 1.7))
+                                   .Field(Infer.Field<PropertyObject>(p => p.Property.Name, 2.0))
+                                   .Field(Infer.Field<PropertyObject>(p => p.Property.FormerName, 1.8))
                                )
                                .Fuzziness(Fuzziness.Auto)
                                .Operator(Operator.Or)
@@ -51,7 +51,7 @@ namespace SmartApartment.Infrastructure.Persistence
                        .Must(q => q
                            .MultiMatch(m => m
                                .Fields(f => f
-                                   .Field(Infer.Field<ManagementObject>(m => m.Management.Name, 1.8))
+                                   .Field(Infer.Field<ManagementObject>(m => m.Management.Name, 1.7))
                                )
                                .Fuzziness(Fuzziness.Auto)
                                .Operator(Operator.Or)

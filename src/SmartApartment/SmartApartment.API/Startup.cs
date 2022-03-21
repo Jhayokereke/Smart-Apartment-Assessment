@@ -1,4 +1,5 @@
 using Elasticsearch.Net;
+using Elasticsearch.Net.Aws;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -10,6 +11,7 @@ using SmartApartment.API.Middlewares;
 using SmartApartment.Application;
 using SmartApartment.Application.Contracts;
 using SmartApartment.Infrastructure.Persistence;
+using System;
 
 namespace SmartApartment.API
 {
@@ -30,18 +32,12 @@ namespace SmartApartment.API
             services.AddScoped<IBaseRepository, BaseRepository>();
             services.AddSingleton<IElasticClient>(s =>
             {
-                //var httpConnection = new AwsHttpConnection(Configuration["AWS:OpenSearch.Region"]);
+                var httpConnection = new AwsHttpConnection(Configuration["AWS:OpenSearch.Region"]);
 
-                //var pool = new SingleNodeConnectionPool(new Uri(Configuration["AWS:OpenSearch.URL"]));
-                //var config = new ConnectionSettings(pool, httpConnection).EnableDebugMode();
+                var pool = new SingleNodeConnectionPool(new Uri(Configuration["AWS:OpenSearch.URL"]));
+                var config = new ConnectionSettings(pool, httpConnection).EnableDebugMode();
 
-                ////var config = new ConnectionSettings(new Uri("http://localhost:9200"));
-
-                //return new ElasticClient(config);
-
-                var settings = new ConnectionSettings(Configuration["Elastic:CloudID"], new BasicAuthenticationCredentials(Configuration["Elastic:Username"], Configuration["Elastic:Password"]))
-                .EnableDebugMode();
-                return new ElasticClient(settings);
+                return new ElasticClient(config);
             });
 
 
